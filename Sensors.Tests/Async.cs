@@ -40,6 +40,37 @@ public class Async
 
     }
 
+
+    [TestMethod]
+    public async Task TaskAvecCancellationToken()
+    {
+        var cancelationTokenSource = new CancellationTokenSource();
+        var T = new Task(() =>
+        {
+            for(var i=0;i<1000000000; i++)
+            {
+                if(i % 10000000 == 0)
+                {
+                    if (cancelationTokenSource.Token.IsCancellationRequested)
+                    {
+                        Console.WriteLine("Annulation demandée");
+                        cancelationTokenSource.Token.ThrowIfCancellationRequested();
+                    }
+                }
+       
+            }
+        });
+
+        T.Start();
+        // cancelationTokenSource.CancelAfter(2000);
+        await Task.Delay(2000);
+        if (!T.IsCompleted)
+        {
+                cancelationTokenSource.Cancel(true);
+        }
+    
+    }
+
     [TestMethod]
     public async void TasktestsAsync()
     {
@@ -83,7 +114,7 @@ public class Async
         return r;
     }
 
-    Task<int> AdditionAsync(int a, int b)
+    Task<int> AdditionAsync(int a, int b )
     {
         return Task.Run(() => Addition(a, b));
     }

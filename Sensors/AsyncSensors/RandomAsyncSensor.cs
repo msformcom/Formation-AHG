@@ -10,7 +10,7 @@ namespace Sensors.AsyncSensors
     public class RandomAsyncSensor : AsyncSensorBase<int>
     {
 
-        public RandomAsyncSensor(string nom, int min = 0, int max = 1000) : base(nom)
+        public RandomAsyncSensor(string nom, int min = 0, int max = 1000) : base(nom, ("Minimum", v => v >= min),("Maximum", v => v <= max))
         {
             if (min > max)
             {
@@ -23,29 +23,15 @@ namespace Sensors.AsyncSensors
         public int Min { get; }
         public int Max { get; }
 
-        public override async Task<int> ReadValueAsync()
+
+
+     
+
+        protected override async Task<int> GetNewValue()
         {
-            
-            try
-            {
-                // Cette partie est la partie spécifique au capteur
-                await Task.Delay(2000);
-                var r = new Random().Next(Min, Max + 1);
-
-
-                _Histoliste.Add((DateTime.Now, r, null));
-                // déclenche l'évènement
-                OnNewValue();
-                return r;
-            }
-            catch (Exception ex)
-            {
-
-                _Histoliste.Add((DateTime.Now, 0, ex));
-                throw new Exception("Erreur");
-            }
-           
-
+            await Task.Delay(200);
+            var r = new Random().Next(Min, Max + 100);
+            return r;
         }
     }
 }

@@ -8,24 +8,42 @@ public class RandomAsyncSensorTests
 {
     RandomAsyncSensor s = new RandomAsyncSensor("Toto", 0, 100);
 
+    
+    //static RandomAsyncSensorTests()
+    //{
+    //    RandomAsyncSensor.NewValue+=(o, e) =>
+    //    {
+    //        if (e.Exception != null)
+    //        {
+    //            // Notification opérateur
+    //            // o contient le capteur qui a généré l'exception
+    //            // cela me permet de réagir en fonction du capteur
+    //        }
+    //    };
+    //}
     public RandomAsyncSensorTests()
     {
         // Etre averti si nouvelle valeur dans l'historique
-        s.NewValue += (o, e) =>
+        s.NewValueEvent += (o, e) =>
         {
-            Console.WriteLine("Nouvelle mesure");
+            if (e.Exception!=null)
+            {
+                // Notifier par mail un opérateur
+                Console.WriteLine("Nouvelle mesure");
+            }
+            
         };
 
-        s.NewValue += (o, e) =>
+        s.NewValueEvent += (o, e) =>
         {
             Console.WriteLine("Nouvelle mesure");
         };
-        s.NewValue += EnvoiMail;
+        s.NewValueEvent += EnvoiMail;
     }
 
     private void EnvoiMail(object? sender, EventArgs e)
     {
-        throw new NotImplementedException();
+       // throw new NotImplementedException();
     }
 
     [TestMethod]
@@ -33,11 +51,20 @@ public class RandomAsyncSensorTests
     {
         // Arrange
         //var s = new RandomAsyncSensor("Toto", 0, 100);
+        int nbEvents = 0;
+        s.NewValueInvalidEvent += (o,e)=> nbEvents++;
+        var r = await Task.WhenAll(Enumerable.Range(0, 100).Select(c => s.ReadValueAsync()));
 
-        var mesure = await s.ReadValueAsync();
+        var nbValueInvalid= r.Count(c => c < 0 || c > 100);
+        Assert.AreEqual(nbValueInvalid, nbEvents);
 
-        Assert.IsTrue(mesure>=0 && mesure<=100,"Mesure non valide");
-        Assert.AreEqual(1,s.Historique.Count() , "Historique faux");
 
+
+
+    }
+
+    private void S_NewValueInvalidEvent(object? sender, SensorNewValueInvalidEventArgs<int> e)
+    {
+        throw new NotImplementedException();
     }
 }
