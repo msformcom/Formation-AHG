@@ -1,0 +1,87 @@
+flowchart TB
+    subgraph Legend["Légende des cardinalités"]
+        direction LR
+        L1["1 — exactement un"]
+        L2["0..1 — zéro ou un"]
+        L3["0..* — zéro ou plusieurs"]
+        L4["1..* — un ou plusieurs"]
+        L5["N — plusieurs côté collection"]
+    end
+
+    subgraph ClientLayer["Couche consommateur"]
+        Client["Client / Application"]
+        Subscriber["Abonné événements\n0..* par capteur"]
+    end
+
+    subgraph AsyncLayer["Sensors.AsyncSensors"]
+        direction TB
+
+        Factory["RandomAsyncSensorFactory\n1 par application"]
+        Sensor["RandomAsyncSensor\n0..* instances"]
+        Base["AsyncSensorBase~T~\nclasse abstraite"]
+        Interface["IAsyncSensor~T~\ncontrat"]
+
+        Hist["SensorHistoryEntry~T~\n0..* par capteur"]
+        Valid["Validator\n0..* par capteur\nclé unique"]
+        EV1["SensorNewValueEventArgs~T~\n1 par notification"]
+        EV2["SensorNewValueInvalidEventArgs~T~\n1 par alerte"]
+
+        Factory -->|"1..* Create()"| Sensor
+        Sensor -->|"1 implémente"| Interface
+        Sensor -->|"1 hérite"| Base
+        Base -->|"1 réalise"| Interface
+
+        Base -->|"1 compose 0..*"| Hist
+        Base -->|"1 agrège 0..*"| Valid
+        Base -.->|"1 émet 0..* handlers"| Subscriber
+        Base -->|"1 produit 1"| EV1
+        Base -->|"1 produit 1"| EV2
+        EV2 -->|"contient 1..*"| Valid
+    end
+
+    subgraph InfraLayer["Sensors — infrastructure"]
+        DI["DI\n1 static provider"]
+        Config["SensorsConfig\n1 singleton"]
+        AppJson["appsettings.json\n1..2 fichiers"]
+
+        DI -->|"1 registre 1"| Config
+        DI -->|"1 registre 1"| AppJson
+    end
+
+    subgraph DALLayer["DAL.DAO — persistance"]
+        direction TB
+        Provider["IServiceProvider\n1 par application"]
+        Ctx["SensorContext\n0..1 par requête/unité"]
+        SetS["DbSet SensorDAO\n0..* entités trackées"]
+        SetV["DbSet SensorValueDAO\n0..* entités trackées"]
+        EntS["SensorDAO\n0..* en base"]
+        EntV["SensorValueDAO\n0..* en base"]
+        DB[("SQL Server\nTBL_Sensor\nTBL_SensorValue")]
+
+        Provider -->|"0..1 GetService"| Ctx
+        Ctx -->|"1 expose"| SetS
+        Ctx -->|"1 expose"| SetV
+        SetS -->|"mappe 0..*"| EntS
+        SetV -->|"mappe 0..*"| EntV
+        EntS -->|"1 possède 0..*"| EntV
+        EntV -->|"0..* référence 1"| EntS
+        Ctx -->|"1 connexion"| DB
+    end
+
+    Client -->|"1..* ReadValueAsync()"| Sensor
+    Client -->|"utilise 0..1"| Factory
+    Factory -->|"1 résout 1"| DI
+    Sensor -->|"1 lit 1"| Config
+    DI -->|"1 fournit 1"| Provider
+
+    Client -.->|"persistance optionnelle"| Provider
+
+    classDef entity fill:#fff,stroke:#333
+    classDef infra fill:#e8f4fc,stroke:#1a73e8
+    classDef db fill:#fff8e1,stroke:#f9a825
+    classDef client fill:#f3e5f5,stroke:#7b1fa2
+
+    class Client,Subscriber client
+    class Factory,Sensor,Base,Interface,Hist,Valid,EV1,EV2 entity
+    class DI,Config,AppJson,Provider infra
+    class Ctx,SetS,SetV,EntS,EntV,DB db

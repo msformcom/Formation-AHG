@@ -1,0 +1,100 @@
+classDiagram
+    direction TB
+
+    namespace DAL.DAO {
+
+        class SensorContext {
+            <<DbContext>>
+            +DbSet~SensorDAO~ Sensors
+            +DbSet~SensorValueDAO~ SensorValues
+            +SensorContext(options)
+        }
+
+        class SensorDAO {
+            <<Entity>>
+            <<Table: TBL_Sensor>>
+            +Guid Id
+            +string Name
+            +DateTime DateCreation
+            +string ConfigJson
+            +ICollection~SensorValueDAO~ Values
+        }
+
+        class SensorValueDAO {
+            <<Entity>>
+            <<Table: TBL_SensorValue>>
+            +Guid Id
+            +Guid SensorId
+            +DateTime DateCreation
+            +string ValueJson
+            +SensorDAO Sensor
+        }
+    }
+
+    namespace Microsoft.EntityFrameworkCore {
+        class DbContext {
+            <<external>>
+            +Database IDatabaseFacade
+            +SaveChanges() int
+            +SaveChangesAsync() Task~int~
+        }
+
+        class DbSet~T~ {
+            <<external>>
+            +Add(entity) EntityEntry
+            +Find(key) T
+            +Remove(entity) EntityEntry
+            +Where(predicate) IQueryable
+        }
+
+        class DbContextOptions {
+            <<external>>
+        }
+    }
+
+    namespace Microsoft.Extensions.DependencyInjection {
+        class IServiceProvider {
+            <<external>>
+            +GetService~T~() T
+        }
+    }
+
+    namespace Microsoft.Extensions.Configuration {
+        class IConfiguration {
+            <<external>>
+            +GetSection(key) IConfigurationSection
+        }
+    }
+
+    class SQLServer {
+        <<database>>
+        +TBL_Sensor
+        +TBL_SensorValue
+    }
+
+    %% ─── Héritage ───
+    DbContext <|-- SensorContext
+
+    %% ─── DbContext expose les jeux d'entités ───
+    SensorContext "1" o-- "0..*" SensorDAO : Sensors\nDbSet
+    SensorContext "1" o-- "0..*" SensorValueDAO : SensorValues\nDbSet
+    SensorContext "1" --> "1" DbContextOptions : options\nobligatoire
+
+    %% ─── Relation entité ↔ table ───
+    SensorDAO "1" ..> "1" SQLServer : mappe TBL_Sensor\n1 ligne = 1 entité
+    SensorValueDAO "1" ..> "1" SQLServer : mappe TBL_SensorValue\n1 ligne = 1 entité
+
+    %% ─── Association bidirectionnelle capteur ↔ mesures ───
+    SensorDAO "1" o-- "0..*" SensorValueDAO : Values\nnavigation collection
+    SensorValueDAO "0..*" --> "1" SensorDAO : Sensor\nnavigation obligatoire
+    SensorValueDAO "0..*" --> "1" Guid : SensorId\nclé étrangère FK_Sensor
+
+    %% ─── Contraintes & cardinalités ───
+    note for SensorDAO "PK_Sensor : Guid (généré à la création)\nDateCreation défaut = Now\nConfigJson : sérialisation config capteur"
+    note for SensorValueDAO "PK_SensorValue : Guid\nFK_Sensor référence PK_Sensor\nValueJson : valeur mesurée sérialisée\nRelation N:1 vers SensorDAO"
+    note for SensorContext "1 contexte = 1 connexion logique\nEnsureCreated() : 0..1 base créée\nSaveChanges() : persiste 0..* entités modifiées"
+
+    %% ─── Cycle de vie typique (dépendances applicatives) ───
+    IServiceProvider "1" ..> "0..1" SensorContext : GetService\nscoped/transient selon config
+    IConfiguration "1" ..> "1" SensorContext : connectionStrings\nSensorsBDDConnection
+    SensorContext "1" ..> SQLServer : EF Core génère SQL\nINSERT/SELECT/CREATE

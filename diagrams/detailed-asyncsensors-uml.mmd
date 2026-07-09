@@ -1,0 +1,159 @@
+classDiagram
+    direction TB
+
+    namespace Sensors.AsyncSensors {
+
+        class IAsyncSensor~T~ {
+            <<interface>>
+            +string Nom
+            +string? Description
+            +IEnumerable~SensorHistoryEntry~T~~ Historique
+            +event EventHandler~SensorNewValueEventArgs~T~~ NewValueEvent
+            +event EventHandler~SensorNewValueInvalidEventArgs~T~~ NewValueInvalidEvent
+            +AddValidator(name, condition) void
+            +RemoveValidator(name) void
+            +ClearHistorique() void
+            +ReadValueAsync() Task~T~
+        }
+
+        class AsyncSensorBase~T~ {
+            <<abstract>>
+            -Dictionary~string, Func~T,bool~~ Validators
+            -List~SensorHistoryEntry~T~~ _Histoliste
+            -string _Nom
+            +string Nom
+            +string? Description
+            +IEnumerable~SensorHistoryEntry~T~~ Historique
+            +event NewValueEvent
+            +event NewValueInvalidEvent
+            +AsyncSensorBase(nom, validators)
+            +AddValidator(name, condition) void
+            +RemoveValidator(name) void
+            +ClearHistorique() void
+            +ReadValueAsync() Task~T~
+            #GetNewValue()* Task~T~
+            #OnNewValue(newValue) void
+            #OnNewValueInvalid(newValue, names) void
+            #OnNewValueException(ex) void
+        }
+
+        class RandomAsyncSensor {
+            -SensorsConfig config
+            +int Min
+            +int Max
+            ~RandomAsyncSensor(nom, config, min, max)
+            #GetNewValue() Task~int~
+        }
+
+        class RandomAsyncSensorFactory {
+            -IServiceProvider applicationProvider
+            +RandomAsyncSensorFactory(provider)
+            +Create(nom, min, max) RandomAsyncSensor
+        }
+
+        class SensorHistoryEntry~T~ {
+            +T Value
+            +DateTime Date
+            +Exception Exception
+        }
+
+        class SensorNewValueEventArgs~T~ {
+            +T? NewValue
+            +DateTime Date
+            +Exception? Exception
+        }
+
+        class SensorNewValueInvalidEventArgs~T~ {
+            +T NewValue
+            +DateTime Date
+            +IEnumerable~string~ ValidatorNames
+            +SensorNewValueInvalidEventArgs(newValue, date, names)
+        }
+    }
+
+    namespace Sensors {
+        class SensorsConfig {
+            +int A
+            +int B
+        }
+
+        class DI {
+            <<static>>
+            -IServiceProvider _provider
+            +IServiceProvider Provider
+        }
+    }
+
+    namespace Microsoft.Extensions.DependencyInjection {
+        class IServiceProvider {
+            <<external>>
+            +GetService(type) object
+            +GetRequiredService~T~() T
+        }
+
+        class ServiceCollection {
+            <<external>>
+            +AddSingleton~T~(factory)
+            +BuildServiceProvider() IServiceProvider
+        }
+    }
+
+    namespace Microsoft.Extensions.Configuration {
+        class IConfiguration {
+            <<external>>
+            +GetSection(key) IConfigurationSection
+        }
+    }
+
+    class EventArgs {
+        <<external BCL>>
+    }
+
+    class Delegate {
+        <<external BCL>>
+    }
+
+    class EventHandler~T~ {
+        <<external BCL>>
+    }
+
+    %% ─── Généralisation / réalisation ───
+    IAsyncSensor~T~ <|.. AsyncSensorBase~T~ : réalise
+    AsyncSensorBase~int~ <|-- RandomAsyncSensor : spécialise T=int
+    EventArgs <|-- SensorNewValueEventArgs~T~
+
+    %% ─── Composition & agrégation (cardinalités) ───
+    AsyncSensorBase~T~ "1" *-- "0..*" SensorHistoryEntry~T~ : _Histoliste\ncomposition
+    AsyncSensorBase~T~ "1" o-- "0..*" ValidatorDelegate~T~ : Validators\nagrégation clé/valeur
+    ValidatorDelegate~T~ ..> Delegate : hérite conceptuellement
+
+    class ValidatorDelegate~T~ {
+        <<delegate Func~T,bool~~
+        +string clé
+        +bool évalue(T value)
+    }
+
+    %% ─── Événements (cardinalité abonnés) ───
+    AsyncSensorBase~T~ "1" ..> "0..*" EventHandler~T~ : NewValueEvent\n0..* abonnés
+    AsyncSensorBase~T~ "1" ..> "0..*" EventHandler~T~ : NewValueInvalidEvent\n0..* abonnés
+    EventHandler~T~ "1" ..> "1" SensorNewValueEventArgs~T~ : transporte
+    EventHandler~T~ "1" ..> "1" SensorNewValueInvalidEventArgs~T~ : transporte
+    SensorNewValueInvalidEventArgs~T~ "1" o-- "1..*" string : ValidatorNames
+
+    %% ─── Dépendances capteur concret ───
+    RandomAsyncSensor "1" --> "1" SensorsConfig : config\nlecture seule
+    RandomAsyncSensorFactory "1" --> "1" IServiceProvider : applicationProvider
+    RandomAsyncSensorFactory "1" ..> "0..*" RandomAsyncSensor : Create()\ninstancie
+
+    %% ─── Injection de dépendances ───
+    DI "1" --> "1" IServiceProvider : _provider\nsingleton
+    DI "1" ..> ServiceCollection : configure
+    DI "1" ..> IConfiguration : enregistre
+    DI "1" ..> SensorsConfig : AddSingleton\n1 instance globale
+    IServiceProvider "1" ..> "0..1" SensorsConfig : GetRequiredService
+    IConfiguration "1" ..> "0..1" SensorsConfig : section sensorsConfig
+
+    %% ─── Notes de cardinalité métier ───
+    note for AsyncSensorBase~T~ "Chaque lecture réussie ajoute\nexactement 1 SensorHistoryEntry\nChaque erreur ajoute 1 entry\navec Exception renseignée"
+    note for RandomAsyncSensor "Validateurs initiaux : 2\nMinimum (0..1) et Maximum (0..1)\ninstanciés au constructeur"
+    note for RandomAsyncSensorFactory "Chaque appel Create produit\nune nouvelle instance de capteur\n(非 enregistré dans le conteneur DI)"

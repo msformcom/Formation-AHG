@@ -1,0 +1,299 @@
+classDiagram
+    direction TB
+
+    namespace Capteurs {
+        class Sensor {
+            -string _Nom
+            +int Port
+            +string NumeroSerie
+            +string Nom
+            +Sensor(nom, numeroSerie, port)
+            +Sensor(nom, port)
+            +float GetValue()
+        }
+    }
+
+    namespace Sensors {
+        class ISensor~T~ {
+            <<interface>>
+            +string Nom
+            +T ReadValue()
+        }
+
+        class SensorBase~T~ {
+            <<abstract>>
+            +string Nom
+            +SensorBase(nom)
+            +T ReadValue()*
+        }
+
+        class TempSensor {
+            -string _Nom
+            -string _Numero
+            +string Nom
+            +string Numero
+            +float? LastRead
+            +TempSensor(nom)
+            +float ReadValue()
+        }
+
+        class StingSensor {
+            +string Nom
+            +(float,float,float) ReadValue()
+        }
+
+        class WMISensor {
+            -string espace
+            -string requete
+            +WMISensor(nom, espace, requete)
+            +double ReadValue()
+        }
+
+        class SensorsConfig {
+            +int A
+            +int B
+        }
+
+        class DI {
+            <<static>>
+            -IServiceProvider _provider
+            +IServiceProvider Provider
+        }
+
+        class MyLinqExtensions {
+            <<static>>
+            +Sample~T~(source, step)$ IEnumerable~T~
+        }
+
+        class StringExtensions {
+            <<static>>
+            +Ellipsis(s, n)$ string
+        }
+
+        class A {
+            -static int coef
+            +string Nom
+            -MaMethode()
+            -MaMethodeStatique()$
+        }
+    }
+
+    namespace Sensors.AsyncSensors {
+        class IAsyncSensor~T~ {
+            <<interface>>
+            +string Nom
+            +string Description
+            +IEnumerable~SensorHistoryEntry~T~~ Historique
+            +event NewValueEvent
+            +event NewValueInvalidEvent
+            +AddValidator(name, condition)
+            +RemoveValidator(name)
+            +ClearHistorique()
+            +Task~T~ ReadValueAsync()
+        }
+
+        class AsyncSensorBase~T~ {
+            <<abstract>>
+            -Dictionary~string, Func~T,bool~~ Validators
+            -List~SensorHistoryEntry~T~~ _Histoliste
+            +string Nom
+            +string Description
+            +event NewValueEvent
+            +event NewValueInvalidEvent
+            +IEnumerable~SensorHistoryEntry~T~~ Historique
+            +AddValidator(name, condition)
+            +RemoveValidator(name)
+            +ClearHistorique()
+            +Task~T~ ReadValueAsync()
+            #GetNewValue()* Task~T~
+            #OnNewValue(newValue)
+            #OnNewValueInvalid(newValue, validatorNames)
+            #OnNewValueException(ex)
+        }
+
+        class RandomAsyncSensor {
+            -SensorsConfig config
+            +int Min
+            +int Max
+            #GetNewValue() Task~int~
+        }
+
+        class RandomAsyncSensorFactory {
+            -IServiceProvider applicationProvider
+            +RandomAsyncSensorFactory(applicationProvider)
+            +Create(nom, min, max) RandomAsyncSensor
+        }
+
+        class SensorHistoryEntry~T~ {
+            +T Value
+            +DateTime Date
+            +Exception Exception
+        }
+
+        class SensorNewValueEventArgs~T~ {
+            +T NewValue
+            +DateTime Date
+            +Exception Exception
+        }
+
+        class SensorNewValueInvalidEventArgs~T~ {
+            +T NewValue
+            +DateTime Date
+            +IEnumerable~string~ ValidatorNames
+            +SensorNewValueInvalidEventArgs(newValue, date, validatorNames)
+        }
+    }
+
+    namespace DAL.DAO {
+        class SensorContext {
+            +DbSet~SensorDAO~ Sensors
+            +DbSet~SensorValueDAO~ SensorValues
+            +SensorContext(options)
+        }
+
+        class SensorDAO {
+            <<Table: TBL_Sensor>>
+            +Guid Id
+            +string Name
+            +DateTime DateCreation
+            +string ConfigJson
+            +ICollection~SensorValueDAO~ Values
+        }
+
+        class SensorValueDAO {
+            <<Table: TBL_SensorValue>>
+            +Guid Id
+            +Guid SensorId
+            +DateTime DateCreation
+            +string ValueJson
+            +SensorDAO Sensor
+        }
+    }
+
+    namespace DependencyInjection {
+        class Class1
+    }
+
+    namespace Sensors.Tests {
+        class SensorsTests {
+            <<TestClass>>
+            +TypesEtOverflow()
+            +TestSensorRange()
+            +CreateSensor()
+        }
+
+        class Botte {
+            +Botte(obligatoires, options)
+        }
+
+        class BotteBuilder {
+            -BotteCtorParams obligatoires
+            -BotteCtorOptional options
+            +WithObligatoires(obligatoires) BotteBuilder
+            +WithOptions(options) BotteBuilder
+            +Build() Botte
+        }
+
+        class BotteCtorParams {
+            +int A
+            +int B
+        }
+
+        class BotteCtorOptional {
+            +int C
+            +int D
+        }
+
+        class ConstructeurBotte {
+            -ConstructionBotte()
+        }
+
+        class StructTest {
+            <<TestClass>>
+            +TestMethod1()
+        }
+
+        class ClassPoint {
+            +int X
+            +int Y
+            +Norme() int
+        }
+
+        class StructPoint {
+            <<struct>>
+            +int X
+            +int Y
+            +Norme() int
+        }
+
+        class Fonctions_flechees {
+            <<TestClass>>
+            +TestMethod1()
+            -Addition(a, b) int
+        }
+    }
+
+    namespace DAL.Tests {
+        class SensorContextTests {
+            <<TestClass>>
+            +static IServiceProvider DI
+            +CreateDatabase()
+            +InsertSensor()
+        }
+    }
+
+    class DbContext {
+        <<external>>
+    }
+    class EventArgs {
+        <<external>>
+    }
+    class IServiceProvider {
+        <<external>>
+    }
+    class IConfiguration {
+        <<external>>
+    }
+
+    ISensor~T~ <|.. SensorBase~T~ : implémente
+    SensorBase~T~ <|-- WMISensor
+    ISensor~float~ <|.. TempSensor : implémente
+    ISensor~tuple~ <|.. StingSensor : implémente
+
+    IAsyncSensor~T~ <|.. AsyncSensorBase~T~ : implémente
+    AsyncSensorBase~int~ <|-- RandomAsyncSensor
+    EventArgs <|-- SensorNewValueEventArgs~T~
+    DbContext <|-- SensorContext
+
+    AsyncSensorBase~T~ "1" *-- "*" SensorHistoryEntry~T~ : historique
+    IAsyncSensor~T~ ..> SensorNewValueEventArgs~T~ : événement
+    IAsyncSensor~T~ ..> SensorNewValueInvalidEventArgs~T~ : événement
+
+    SensorContext "1" o-- "*" SensorDAO : DbSet
+    SensorContext "1" o-- "*" SensorValueDAO : DbSet
+    SensorDAO "1" o-- "*" SensorValueDAO : Values
+
+    RandomAsyncSensor ..> SensorsConfig : utilise
+    RandomAsyncSensorFactory ..> RandomAsyncSensor : crée
+    RandomAsyncSensorFactory ..> IServiceProvider : injecté
+    RandomAsyncSensorFactory ..> SensorsConfig : via DI
+    DI ..> SensorsConfig : enregistre
+    DI ..> IConfiguration : enregistre
+    DI ..> IServiceProvider : construit
+
+    BotteBuilder ..> Botte : crée
+    BotteBuilder ..> BotteCtorParams
+    BotteBuilder ..> BotteCtorOptional
+    Botte ..> BotteCtorParams
+    Botte ..> BotteCtorOptional
+    ConstructeurBotte ..> BotteBuilder
+
+    StructTest ..> ClassPoint : classe imbriquée
+    StructTest ..> StructPoint : struct imbriquée
+    A ..> StringExtensions : utilise
+
+    SensorsTests ..> Sensor : teste
+    SensorContextTests ..> SensorContext : teste
+    SensorContextTests ..> SensorDAO : teste
+    SensorContextTests ..> IServiceProvider
+    SensorContextTests ..> IConfiguration
