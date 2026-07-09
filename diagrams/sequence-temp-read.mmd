@@ -1,0 +1,17 @@
+sequenceDiagram
+    autonumber
+    actor Client
+    participant Temp as TempSensor
+    participant Thread as Thread OS
+
+    Client->>Temp: ReadValue()
+    activate Temp
+
+    Temp->>Thread: Sleep(8000 ms)
+    Note over Temp,Thread: lecture synchrone — bloque le thread appelant
+
+    Temp->>Temp: Random.Next(0, 1000) / 10F
+    Temp->>Temp: LastRead = r
+    Temp-->>Client: float r
+
+    deactivate Temp

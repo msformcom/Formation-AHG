@@ -1,0 +1,39 @@
+sequenceDiagram
+    autonumber
+    actor App as Application
+    participant DI as IServiceProvider
+    participant Ctx as SensorContext
+    participant EF as Entity Framework Core
+    participant DB as SQL Server
+
+    Note over App,DB: Initialisation (pattern DAL)
+
+    App->>DI: GetService SensorContext
+    DI-->>App: SensorContext
+
+    rect rgb(240, 248, 255)
+        Note over App,DB: Création de la base
+        App->>Ctx: Database.EnsureCreated()
+        Ctx->>EF: générer le modèle (SensorDAO, SensorValueDAO)
+        EF->>DB: CREATE TABLE TBL_Sensor, TBL_SensorValue
+        DB-->>App: true si créée
+    end
+
+    rect rgb(245, 255, 245)
+        Note over App,DB: Persistance d'un capteur
+        App->>App: new SensorDAO { Name, ConfigJson, ... }
+        App->>Ctx: Sensors.Add(sensor)
+        App->>Ctx: SaveChanges()
+        Ctx->>EF: INSERT
+        EF->>DB: INSERT INTO TBL_Sensor
+        DB-->>App: Id généré (GUID)
+    end
+
+    rect rgb(255, 248, 240)
+        Note over App,DB: Persistance d'une mesure
+        App->>App: new SensorValueDAO { SensorId, ValueJson, ... }
+        App->>Ctx: SensorValues.Add(value)
+        App->>Ctx: SaveChanges()
+        EF->>DB: INSERT INTO TBL_SensorValue (FK_Sensor)
+        DB-->>App: mesure enregistrée
+    end

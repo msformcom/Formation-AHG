@@ -1,0 +1,43 @@
+sequenceDiagram
+    autonumber
+    actor Client
+    participant Sensor as RandomAsyncSensor
+    participant Base as AsyncSensorBase
+    participant Config as SensorsConfig
+    participant Hist as Historique
+    participant Sub as Abonné événements
+
+    Client->>Sensor: ReadValueAsync()
+    activate Sensor
+    Sensor->>Base: ReadValueAsync()
+    activate Base
+
+    Base->>Sensor: GetNewValue()
+    activate Sensor
+    Sensor->>Config: lire A
+    Sensor->>Sensor: Task.Delay(200)
+    Sensor->>Sensor: Random.Next(Min, Max+100)
+    Sensor-->>Base: valeur r
+    deactivate Sensor
+
+    Base->>Hist: Add(entry avec Value=r)
+    Base->>Base: OnNewValue(r)
+
+    opt NewValueEvent abonné
+        Base->>Sub: NewValueEvent(SensorNewValueEventArgs)
+    end
+
+    Base->>Base: exécuter Validators sur r
+
+    alt valeur hors plage Min/Max
+        Base->>Base: OnNewValueInvalid(r, noms validateurs)
+        opt NewValueInvalidEvent abonné
+            Base->>Sub: NewValueInvalidEvent(args)
+        end
+    else valeur valide
+        Note over Base: pas d'événement d'invalidité
+    end
+
+    Base-->>Client: r
+    deactivate Base
+    deactivate Sensor
