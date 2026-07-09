@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Sensors.AsyncSensors;
 
@@ -6,9 +8,29 @@ namespace Sensors.Tests;
 [TestClass]
 public class RandomAsyncSensorTests
 {
-    RandomAsyncSensor s = new RandomAsyncSensor("Toto", 0, 100);
 
     
+    
+    IServiceProvider provider;
+
+    public RandomAsyncSensorTests()
+    {
+        var serviceCollection = new ServiceCollection();
+
+        ConfigurationBuilder configurationBuilder = new ConfigurationBuilder();
+        // Ajouter le fichier de configuration
+        configurationBuilder.AddJsonFile("appsettings.json");
+        configurationBuilder.AddJsonFile("appsettings-local.json");
+
+        IConfiguration config = configurationBuilder.Build();
+        serviceCollection.AddSingleton<SensorsConfig>(s => s.GetService<IConfiguration>().GetSection("sensorsConfig").Get<SensorsConfig>());
+        serviceCollection.AddSingleton<RandomAsyncSensorFactory>(s=>new RandomAsyncSensorFactory(s));
+
+        provider = serviceCollection.BuildServiceProvider();
+    }
+
+
+
     //static RandomAsyncSensorTests()
     //{
     //    RandomAsyncSensor.NewValue+=(o, e) =>
@@ -23,6 +45,7 @@ public class RandomAsyncSensorTests
     //}
     public RandomAsyncSensorTests()
     {
+       
         // Etre averti si nouvelle valeur dans l'historique
         s.NewValueEvent += (o, e) =>
         {
@@ -49,6 +72,7 @@ public class RandomAsyncSensorTests
     [TestMethod]
     public async Task ReadValueAsyncTest()
     {
+         var s = provider.GetRequiredService<RandomAsyncSensorFactory>().Create("Toto", 0, 100);
         // Arrange
         //var s = new RandomAsyncSensor("Toto", 0, 100);
         int nbEvents = 0;
