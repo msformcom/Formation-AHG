@@ -9,11 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Sensors\Sensors.csproj" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.13" />
   </ItemGroup>
 
 </Project>

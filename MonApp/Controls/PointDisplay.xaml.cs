@@ -49,6 +49,5 @@ namespace MonApp.Controls
                         me.DataContext = new IPointVM2() { Model=(IPoint)e.NewValue };
                         }
                     )));
-
     }
 }

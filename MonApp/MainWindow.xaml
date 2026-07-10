@@ -7,7 +7,9 @@
         xmlns:local="clr-namespace:MonApp"
          xmlns:c="clr-namespace:MonApp.Controls"
         xmlns:m="clr-namespace:MonApp.Model"
+        xmlns:s="clr-namespace:Sensors.AsyncSensors;assembly=Sensors"
         xmlns:vm="clr-namespace:MonApp.ViewModels"
+ 
         mc:Ignorable="d"
         Background="Wheat"
         Title="MainWindow" Height="450" Width="800">
@@ -17,16 +19,18 @@
                  <m:PointPlan X="1" Y="2"></m:PointPlan>
             </vm:IPointVM2.Model>
         </vm:IPointVM2>
+        
        
     </Window.DataContext>
     <Window.Resources>
         <m:PointPlan x:Key="P1" X="1" Y="2"></m:PointPlan>
         <m:PointPlan x:Key="P2" X="1" Y="2"></m:PointPlan>
+
+
     </Window.Resources>
     <StackPanel>
         <c:PointDisplay x:Name="DisplayP1" Point="{StaticResource P1}"></c:PointDisplay>
         <c:PointDisplay Point="{StaticResource P2}"></c:PointDisplay>
-
         <c:PointDisplay Point="{Binding Point, ElementName=DisplayP1}"></c:PointDisplay>
     </StackPanel>
 </Window>
