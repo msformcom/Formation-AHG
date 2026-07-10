@@ -1,0 +1,27 @@
+sequenceDiagram
+    autonumber
+    actor Client
+    participant Factory as RandomAsyncSensorFactory
+    participant Provider as IServiceProvider
+    participant Config as SensorsConfig
+    participant Sensor as RandomAsyncSensor
+    participant Base as AsyncSensorBase
+
+    Client->>Factory: Create(nom, min, max)
+    activate Factory
+
+    Factory->>Provider: GetRequiredService<SensorsConfig>()
+    activate Provider
+    Provider-->>Factory: SensorsConfig
+    deactivate Provider
+
+    Factory->>Sensor: new RandomAsyncSensor(nom, config, min, max)
+    activate Sensor
+    Sensor->>Base: base(nom, validateurs Minimum/Maximum)
+    activate Base
+    Base->>Base: enregistrer validateurs dans Validators
+    deactivate Base
+    deactivate Sensor
+
+    Factory-->>Client: RandomAsyncSensor
+    deactivate Factory

@@ -1,0 +1,64 @@
+erDiagram
+    AsyncSensorBase ||--o{ SensorHistoryEntry : "compose _Histoliste"
+    AsyncSensorBase ||--o{ ValidatorEntry : "agrège Validators"
+    AsyncSensorBase ||--o{ EventSubscriber : "notifie NewValueEvent"
+    AsyncSensorBase ||--o{ EventSubscriber : "notifie NewValueInvalidEvent"
+    RandomAsyncSensor }o--|| SensorsConfig : "lit config (1 par instance)"
+    RandomAsyncSensorFactory }o--|| IServiceProvider : "injecté (1)"
+    RandomAsyncSensorFactory ||--o{ RandomAsyncSensor : "Create() instancie"
+    DI ||--|| IServiceProvider : "fournit Provider"
+    DI }o--|| SensorsConfig : "singleton global"
+    DI }o--|| IConfiguration : "singleton global"
+    SensorNewValueInvalidEventArgs ||--|{ ValidatorName : "liste 1..* noms"
+
+    AsyncSensorBase {
+        string Nom "1..1 obligatoire"
+        string Description "0..1 optionnel"
+        int validateur_count "0..* entrées dans Validators"
+    }
+
+    SensorHistoryEntry {
+        generic Value "0..1 si succès"
+        datetime Date "1..1 défaut Now"
+        Exception Exception "0..1 si échec lecture"
+    }
+
+    ValidatorEntry {
+        string Nom "1..1 clé unique"
+        bool Condition "1..1 Func évaluation"
+    }
+
+    RandomAsyncSensor {
+        int Min "1..1 borne inférieure"
+        int Max "1..1 borne supérieure"
+        int validateurs_init "2 (Minimum, Maximum)"
+    }
+
+    RandomAsyncSensorFactory {
+        string Create_params "nom 1..1, min 1..1, max 1..1"
+    }
+
+    SensorsConfig {
+        int A "1..1"
+        int B "1..1"
+    }
+
+    EventSubscriber {
+        string handler "0..* abonnés par événement"
+    }
+
+    ValidatorName {
+        string name "1 par validateur en échec"
+    }
+
+    SensorNewValueEventArgs {
+        generic NewValue "0..1 si succès"
+        datetime Date "1..1"
+        Exception Exception "0..1 si erreur"
+    }
+
+    SensorNewValueInvalidEventArgs {
+        generic NewValue "1..1 valeur rejetée"
+        datetime Date "1..1"
+        int failed_validators "1..* validateurs en échec"
+    }

@@ -1,0 +1,28 @@
+sequenceDiagram
+    autonumber
+    actor Client
+    participant Sensor as RandomAsyncSensor
+    participant Base as AsyncSensorBase
+    participant Hist as Historique
+    participant Sub as Abonné événements
+
+    Client->>Sensor: ReadValueAsync()
+    activate Sensor
+    Sensor->>Base: ReadValueAsync()
+    activate Base
+
+    Base->>Sensor: GetNewValue()
+    activate Sensor
+    Sensor--xBase: Exception (matériel, réseau, etc.)
+    deactivate Sensor
+
+    Base->>Hist: Add(entry avec Exception)
+    Base->>Base: OnNewValueException(ex)
+
+    opt NewValueEvent abonné
+        Base->>Sub: NewValueEvent(args avec Exception)
+    end
+
+    Base--xClient: throw Exception("Erreur")
+    deactivate Base
+    deactivate Sensor

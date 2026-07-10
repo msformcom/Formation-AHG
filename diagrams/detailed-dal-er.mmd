@@ -1,0 +1,16 @@
+erDiagram
+    TBL_Sensor ||--o{ TBL_SensorValue : "enregistre (FK_Sensor)"
+
+    TBL_Sensor {
+        Guid PK_Sensor PK "NOT NULL, DEFAULT NewId()"
+        string Name "NOT NULL"
+        datetime DateCreation "NOT NULL, DEFAULT Now()"
+        string ConfigJson "NULL autorisé, config sérialisée"
+    }
+
+    TBL_SensorValue {
+        Guid PK_SensorValue PK "NOT NULL, DEFAULT NewId()"
+        Guid FK_Sensor FK "NOT NULL, référence TBL_Sensor"
+        datetime DateCreation "NOT NULL, horodatage mesure"
+        string ValueJson "NULL autorisé, valeur sérialisée"
+    }

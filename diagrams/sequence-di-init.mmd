@@ -1,0 +1,30 @@
+sequenceDiagram
+    autonumber
+    participant Runtime as Runtime .NET
+    participant DI as DI (static)
+    participant Builder as ConfigurationBuilder
+    participant Files as appsettings.json
+    participant SC as ServiceCollection
+    participant Provider as IServiceProvider
+
+    Runtime->>DI: premier accès à la classe
+    activate DI
+
+    DI->>SC: new ServiceCollection()
+    DI->>Builder: new ConfigurationBuilder()
+    DI->>Files: AddJsonFile(appsettings.json)
+    DI->>Files: AddJsonFile(appsettings-local.json)
+    DI->>Builder: Build()
+    Builder-->>DI: IConfiguration
+
+    DI->>SC: AddSingleton SensorsConfig (depuis section sensorsConfig)
+    DI->>SC: AddSingleton IConfiguration
+    DI->>SC: AddKeyedSingleton IConfiguration (local, global)
+
+    DI->>SC: BuildServiceProvider()
+    SC-->>DI: _provider
+
+    DI->>Provider: GetService IConfiguration (warm-up)
+    deactivate DI
+
+    Note over Runtime,Provider: DI.Provider disponible pour RandomAsyncSensorFactory

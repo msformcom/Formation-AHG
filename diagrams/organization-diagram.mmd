@@ -1,0 +1,86 @@
+flowchart TB
+    SLN["Panel.sln — Formation-AHG"]
+
+  SLN --> SensorsProj
+  SLN --> DALProj
+
+    subgraph SensorsProj["Projet Sensors"]
+        direction TB
+
+        subgraph Capteurs["Namespace Capteurs"]
+            direction LR
+            SensorLegacy["Sensor<br/><i>modèle initial</i>"]
+        end
+
+        subgraph Sync["Namespace Sensors — capteurs synchrones"]
+            direction TB
+            ISensor["ISensor"]
+            SensorBase["SensorBase"]
+            TempSensor["TempSensor"]
+            StingSensor["StingSensor"]
+            WMISensor["WMISensor"]
+
+            ISensor --> SensorBase
+            ISensor --> TempSensor
+            ISensor --> StingSensor
+            SensorBase --> WMISensor
+        end
+
+        subgraph Async["Namespace Sensors.AsyncSensors — capteurs asynchrones"]
+            direction TB
+            IAsyncSensor["IAsyncSensor"]
+            AsyncSensorBase["AsyncSensorBase"]
+            RandomAsyncSensor["RandomAsyncSensor"]
+            RandomAsyncSensorFactory["RandomAsyncSensorFactory"]
+            SupportAsync["SensorHistoryEntry<br/>SensorNewValueEventArgs<br/>SensorNewValueInvalidEventArgs"]
+
+            IAsyncSensor --> AsyncSensorBase
+            AsyncSensorBase --> RandomAsyncSensor
+            AsyncSensorBase --> SupportAsync
+            RandomAsyncSensorFactory --> RandomAsyncSensor
+        end
+
+        subgraph Infra["Configuration & injection de dépendances"]
+            direction LR
+            SensorsConfig["SensorsConfig"]
+            DI["DI"]
+            AppSettings["appsettings.json<br/>appsettings-local.json"]
+
+            DI --> SensorsConfig
+            DI --> AppSettings
+        end
+
+        Capteurs ~~~ Sync
+        Sync ~~~ Async
+        Async ~~~ Infra
+    end
+
+    subgraph DALProj["Projet DAL"]
+        direction TB
+
+        subgraph DAO["Namespace DAL.DAO — persistance"]
+            direction TB
+            SensorContext["SensorContext<br/><i>DbContext EF Core</i>"]
+            SensorDAO["SensorDAO<br/><i>TBL_Sensor</i>"]
+            SensorValueDAO["SensorValueDAO<br/><i>TBL_SensorValue</i>"]
+            SQLServer[("SQL Server")]
+
+            SensorContext --> SensorDAO
+            SensorContext --> SensorValueDAO
+            SensorDAO -->|"1 — N"| SensorValueDAO
+            SensorContext --> SQLServer
+        end
+    end
+
+    RandomAsyncSensor -.->|"lit la config"| SensorsConfig
+    RandomAsyncSensorFactory -.->|"résout via"| DI
+
+    classDef project fill:#e8f4fc,stroke:#1a73e8,stroke-width:2px,color:#111
+    classDef namespace fill:#f5f5f5,stroke:#666,stroke-width:1px,color:#111
+    classDef type fill:#fff,stroke:#333,stroke-width:1px,color:#111
+    classDef storage fill:#fff8e1,stroke:#f9a825,stroke-width:2px,color:#111
+
+    class SensorsProj,DALProj project
+    class Capteurs,Sync,Async,Infra,DAO namespace
+    class SensorLegacy,ISensor,SensorBase,TempSensor,StingSensor,WMISensor,IAsyncSensor,AsyncSensorBase,RandomAsyncSensor,RandomAsyncSensorFactory,SupportAsync,SensorsConfig,DI,AppSettings,SensorContext,SensorDAO,SensorValueDAO type
+    class SQLServer storage

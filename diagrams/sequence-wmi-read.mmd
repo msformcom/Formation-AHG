@@ -1,0 +1,31 @@
+sequenceDiagram
+    autonumber
+    actor Client
+    participant WMI as WMISensor
+    participant Base as SensorBase
+    participant Searcher as ManagementObjectSearcher
+    participant OS as WMI Windows
+
+    Client->>WMI: ReadValue()
+    activate WMI
+
+    WMI->>Base: Nom (via héritage)
+    WMI->>Searcher: new(espace, requete)
+    WMI->>Searcher: Get()
+    activate Searcher
+    Searcher->>OS: exécuter requête WMI
+    OS-->>Searcher: ManagementObjectCollection
+    deactivate Searcher
+
+    loop pour chaque ManagementObject
+        WMI->>WMI: Convert.ToDouble(CurrentTemperature)
+        WMI-->>Client: température en Kelvin
+    end
+
+    alt aucun objet retourné
+        WMI--xClient: throw Exception("Pas disponible")
+    else erreur WMI
+        WMI--xClient: throw Exception("Erreur de requête WMI")
+    end
+
+    deactivate WMI
