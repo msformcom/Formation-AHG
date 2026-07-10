@@ -21,7 +21,7 @@ namespace DAL.DAO
 
         public string ConfigJson { get; set; }
 
-        public virtual ICollection<SensorValueDAO> Values { get; set; }
+        public virtual ICollection<SensorValueDAO> Values { get; set; } = new HashSet<SensorValueDAO>();
 
 
     }

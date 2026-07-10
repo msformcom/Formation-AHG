@@ -16,7 +16,7 @@ namespace DAL.DAO
         public Guid Id { get; set; }=Guid.NewGuid();
         [Column("FK_Sensor")]
         public Guid SensorId { get; set; }
-        public DateTime DateCreation { get; set; }
+        public DateTime DateCreation { get; set; }=DateTime.Now;
         public string ValueJson { get; set; }
 
         [ForeignKey(nameof(SensorId))]

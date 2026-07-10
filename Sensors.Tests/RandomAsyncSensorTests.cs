@@ -43,9 +43,9 @@ public class RandomAsyncSensorTests
     //        }
     //    };
     //}
-    public RandomAsyncSensorTests()
+    public RandomAsyncSensorTests(int a)
     {
-       
+        RandomAsyncSensor s = null ;
         // Etre averti si nouvelle valeur dans l'historique
         s.NewValueEvent += (o, e) =>
         {
