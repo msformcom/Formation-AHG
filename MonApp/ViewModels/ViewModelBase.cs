@@ -13,7 +13,7 @@ namespace MonApp.ViewModels
         {
             foreach (var name in propertyNames)
             {
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name)); 
             }
 
         }
