@@ -11,6 +11,12 @@ namespace MonApp.Model
         public float X { get; set; }
         public float Y { get; set; }
 
-        public float Norme => (float)Math.Sqrt(Math.Pow(X,2) + Y * Y);
+        public float Norme => (float)Math.Sqrt(Math.Pow(X, 2) + Y * Y);
+
+        public void MultiplyBy(float c)
+        {
+            X *= c;
+            Y *= c;
+        }
     }
 }

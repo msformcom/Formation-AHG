@@ -12,5 +12,8 @@ namespace MonApp.Model
         float Y { get; set; }
 
         float Norme { get; }
+
+        void MultiplyBy(float c);
+
     }
 }

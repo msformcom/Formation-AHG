@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Input;
 using MonApp.Model;
 
 namespace MonApp.ViewModels
@@ -15,7 +16,7 @@ namespace MonApp.ViewModels
 
 
         #region Propriété X
-        public float X 
+        public float X
         {
             get { return Model.X; }
             set
@@ -23,7 +24,7 @@ namespace MonApp.ViewModels
                 // TODO : Tester value
                 if (value != Model.X)
                 {
-                    Model.X=value;
+                    Model.X = value;
                     OnPropertyChanged(nameof(Norme));
                 }
 
@@ -40,7 +41,7 @@ namespace MonApp.ViewModels
                 // TODO : Tester value
                 if (value != Model.Y)
                 {
-                    Model.X = value;
+                    Model.Y = value;
                     OnPropertyChanged(nameof(Norme));
                 }
 
@@ -50,6 +51,32 @@ namespace MonApp.ViewModels
 
         public float Norme => Model.Norme;
 
-     
+
+        ICommand _multiplyByCommand;
+        public ICommand MultiplyByCommand
+        {
+            get
+            {
+                if (_multiplyByCommand == null)
+                {
+                    _multiplyByCommand = new RelayCommand(
+                        execute:async (o) =>
+                        {
+                            var m = (int)o;
+                            Model.MultiplyBy(m);
+                            OnPropertyChanged(nameof(X), nameof(Y), nameof(Norme));
+                        }, 
+                        canExecute:o=> {
+                            var m = (int)o;
+                            return Norme*m < 20;
+                        }
+                    );
+                }
+                return _multiplyByCommand;
+            }
+        }
+
+
+
     }
 }
