@@ -52,7 +52,7 @@ namespace MonApp.ViewModels
         public float Norme => Model.Norme;
 
 
-        ICommand _multiplyByCommand;
+        RelayCommand _multiplyByCommand;
         public ICommand MultiplyByCommand
         {
             get
@@ -62,12 +62,14 @@ namespace MonApp.ViewModels
                     _multiplyByCommand = new RelayCommand(
                         execute:async (o) =>
                         {
-                            var m = (int)o;
+                            var m = int.Parse(o.ToString());
                             Model.MultiplyBy(m);
                             OnPropertyChanged(nameof(X), nameof(Y), nameof(Norme));
+                            _multiplyByCommand.OnCanExecuteChanged();
+
                         }, 
                         canExecute:o=> {
-                            var m = (int)o;
+                            var m = int.Parse(o.ToString());
                             return Norme*m < 20;
                         }
                     );

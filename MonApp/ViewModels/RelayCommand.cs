@@ -15,9 +15,13 @@ namespace MonApp.ViewModels
         public RelayCommand(Func<object?, Task> execute, Func<object?, bool>? canExecute=null)
         {
             _execute = execute;
-            _canExecute = canExecute==null ? canExecute: (o=>true);
+            _canExecute = canExecute!=null ? canExecute: (o=>true);
         }
 
+        public void OnCanExecuteChanged()
+        {
+            CanExecuteChanged?.Invoke(this, EventArgs.Empty);
+        }
 
         public event EventHandler? CanExecuteChanged;
 
