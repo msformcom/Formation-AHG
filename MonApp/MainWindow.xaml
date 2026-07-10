@@ -12,15 +12,21 @@
         Background="Wheat"
         Title="MainWindow" Height="450" Width="800">
     <Window.DataContext>
-        <vm:IPointVM>
-            <vm:IPointVM.Model>
+        <vm:IPointVM2>
+            <vm:IPointVM2.Model>
                  <m:PointPlan X="1" Y="2"></m:PointPlan>
-            </vm:IPointVM.Model>
-        </vm:IPointVM>
+            </vm:IPointVM2.Model>
+        </vm:IPointVM2>
        
     </Window.DataContext>
+    <Window.Resources>
+        <m:PointPlan x:Key="P1" X="1" Y="2"></m:PointPlan>
+        <m:PointPlan x:Key="P2" X="1" Y="2"></m:PointPlan>
+    </Window.Resources>
     <StackPanel>
-        <c:PointDisplay></c:PointDisplay>
-        <c:PointDisplay></c:PointDisplay>
+        <c:PointDisplay x:Name="DisplayP1" Point="{StaticResource P1}"></c:PointDisplay>
+        <c:PointDisplay Point="{StaticResource P2}"></c:PointDisplay>
+
+        <c:PointDisplay Point="{Binding Point, ElementName=DisplayP1}"></c:PointDisplay>
     </StackPanel>
 </Window>

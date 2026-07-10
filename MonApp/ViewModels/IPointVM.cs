@@ -5,49 +5,46 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using CommunityToolkit.Mvvm.ComponentModel;
 using MonApp.Model;
 
 namespace MonApp.ViewModels
 {
-    internal class IPointVM : ViewModelBase
+    internal partial class IPointVM : ObservableObject
     {
-        public IPoint Model { get; set; }
+        [ObservableProperty()]
+        [NotifyPropertyChangedFor(nameof(Norme))]
+        [NotifyPropertyChangedFor(nameof(X))]
+        [NotifyPropertyChangedFor(nameof(Y))]
+        private IPoint _Model;
 
-
-
-        #region Propriété X
-        public float X
+        partial void OnModelChanged(IPoint m)
         {
-            get { return Model.X; }
-            set
-            {
-                // TODO : Tester value
-                if (value != Model.X)
-                {
-                    Model.X = value;
-                    OnPropertyChanged(nameof(Norme));
-                }
-
-            }
+            X = m.X;
+            Y = m.Y;
         }
-        #endregion
 
-        #region Propriété Y
-        public float Y
+        
+
+        // Cet attribut entraine la génération d'une propriété X dans un fichier de classe partielle
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(Norme))]
+        private float _X;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(Norme))]
+        private float _Y;
+
+        partial void OnXChanged(float v)
         {
-            get { return Model.Y; }
-            set
-            {
-                // TODO : Tester value
-                if (value != Model.Y)
-                {
-                    Model.Y = value;
-                    OnPropertyChanged(nameof(Norme));
-                }
-
-            }
+            Model.X = v;
         }
-        #endregion
+        partial void OnYChanged(float v)
+        {
+            Model.Y = v;
+        }
+
+
 
         public float Norme => Model.Norme;
 
@@ -57,6 +54,7 @@ namespace MonApp.ViewModels
         {
             get
             {
+   
                 if (_multiplyByCommand == null)
                 {
                     _multiplyByCommand = new RelayCommand(
@@ -64,7 +62,9 @@ namespace MonApp.ViewModels
                         {
                             var m = int.Parse(o.ToString());
                             Model.MultiplyBy(m);
-                            OnPropertyChanged(nameof(X), nameof(Y), nameof(Norme));
+                            this.OnPropertyChanged(nameof(Model));
+                            X = Model.X;
+                            Y = Model.Y;
                             _multiplyByCommand.OnCanExecuteChanged();
 
                         }, 
