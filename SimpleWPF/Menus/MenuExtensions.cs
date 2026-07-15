@@ -25,7 +25,7 @@ namespace SimpleWPF.Menus
                             {
                                 new MenuItemVM(){Libelle="Accueil"},
                                  new MenuItemVM(){Libelle="Quitter", Type= ButtonTypeEnum.Danger},
-                            }
+                            } 
             });
         }
     }
