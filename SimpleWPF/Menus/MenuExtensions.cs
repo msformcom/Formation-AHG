@@ -19,7 +19,7 @@ namespace SimpleWPF.Menus
                             {
                                 //GetNewVM demande à DI de nous fournir un VM à afficher
                                 new MenuItemVM(){Libelle="Accueil", GetNewVM=()=>App.Services.GetService<AccueilVM>()},
-                                new MenuItemVM(){Libelle="Quitter", Type= ButtonTypeEnum.Danger, GetNewVM=()=>App.Services.GetService<AccueilVM>()},
+                                new MenuItemVM(){Libelle="Quitter", Type= ButtonTypeEnum.Danger, GetNewVM=()=>App.Services.GetService<QuitterVM>()},
                             },
                 BottomButtons = new List<MenuItemVM>()
                             {
