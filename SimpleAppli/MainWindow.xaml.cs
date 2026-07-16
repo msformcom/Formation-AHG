@@ -43,7 +43,7 @@ namespace SimpleAppli
 
             var cr1 = capteurRandomFactory(1000);
             cr1.NewValueEvent += Cr_NewValueEvent1;
-            var cr2= capteurRandomFactory(667);
+            var cr2= capteurRandomFactory(667); 
             cr2.NewValueEvent += Cr_NewValueEvent1;
             var cr3 = capteurRandomFactory(456);
             cr3.NewValueEvent += Cr_NewValueEvent1;
