@@ -1,0 +1,12 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:vm="clr-namespace:GlobalElements.ViewModels"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <DataTemplate x:Key="MenuButtonTemplate" DataType="{x:Type vm:MenuItemVM}">
+        <Button Content="{Binding Libelle}"></Button>
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type vm:MenuVM}">
+        <ItemsControl ItemsSource="{Binding TopButtons}" ItemTemplate="{StaticResource MenuButtonTemplate}"></ItemsControl>
+    </DataTemplate>
+    
+</ResourceDictionary>

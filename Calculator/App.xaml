@@ -1,15 +1,13 @@
-﻿<ahg:AHGApplication x:Class="SimpleAppli.App"
+﻿<ahg:AHGApplication x:Class="Calculator.App"
              xmlns:ahg="clr-namespace:GlobalElements;assembly=GlobalElements"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:SimpleAppli"
-                    xmlns:sys="clr-namespace:System;assembly=System.Runtime"
+             xmlns:local="clr-namespace:Calculator"
              StartupUri="MainWindow.xaml">
     <ahg:AHGApplication.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/Capteurs;component/CapteursUI.xaml"></ResourceDictionary>
-                <ResourceDictionary Source="/Customization.xaml"></ResourceDictionary>
+                <ResourceDictionary Source="/GlobalElements;component/Templates.xaml"></ResourceDictionary>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </ahg:AHGApplication.Resources>
