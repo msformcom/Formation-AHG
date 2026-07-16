@@ -8,7 +8,7 @@
         {
      
             Double? valeurLue = null;
-            var c = new CapteurDMX("COM4");
+            var c = new CapteurDMX("COM4",null);
             try
             {
                 c.StartListening();

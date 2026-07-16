@@ -1,9 +1,10 @@
-﻿<Application x:Class="SimpleAppli.App"
+﻿<ahg:AHGApplication x:Class="SimpleAppli.App"
+             xmlns:ahg="clr-namespace:GlobalElements;assembly=GlobalElements"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:SimpleAppli"
              StartupUri="MainWindow.xaml">
-    <Application.Resources>
-         
-    </Application.Resources>
-</Application>
+    <ahg:AHGApplication.Resources>
+
+    </ahg:AHGApplication.Resources>
+</ahg:AHGApplication>

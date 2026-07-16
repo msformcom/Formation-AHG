@@ -2,6 +2,7 @@
 using System.IO.Ports;
 using System.Text.RegularExpressions;
 using Capteur;
+using Microsoft.Extensions.Logging;
 
 
 namespace CapteurNS
@@ -10,14 +11,14 @@ namespace CapteurNS
     {
         private readonly string port;
 
-        public CapteurDMX(string port) : base(s =>
+        public CapteurDMX(string port, ILogger<CapteurDMX> logger) : base(s =>
         {
             var reg = new Regex(@"[1-9]\d*\.\d+");
             var numString = reg.Matches(s)[0].Value; //00005.194
             //numString = numString.Replace(".", ",");
             var value = Convert.ToDouble(numString, CultureInfo.InvariantCulture);
             return value;
-        })
+        },logger )
         {
             this.port = port;
    

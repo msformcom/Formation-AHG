@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Capteur\Capteur.csproj" />
+    <ProjectReference Include="..\Capteurs\Capteurs.csproj" />
   </ItemGroup>
 
   <ItemGroup>
